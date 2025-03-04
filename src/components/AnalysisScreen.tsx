@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
-import { Cpu } from "lucide-react";
-import { detectDeepfakeVideo, detectDeepfakeAudio } from "./deepfakeApi";
+//import { Cpu } from "lucide-react";
+import { detectDeepfakeVideo, detectDeepfakeAudio } from "../api/deepfakeApi";
 
 interface LocationState {
   fileType: "video" | "audio" | "image";
@@ -20,62 +20,62 @@ const AnalysisScreen: React.FC = () => {
   );
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    let progressInterval: NodeJS.Timeout;
+ useEffect(() => {
+   let progressInterval: number;
 
-    // Increase progress until API call completes
-    progressInterval = setInterval(() => {
-      setProgress((prev) => (prev < 90 ? prev + 1 : prev));
-    }, 200);
+   // Increase progress until API call completes
+   progressInterval = window.setInterval(() => {
+     setProgress((prev) => (prev < 90 ? prev + 1 : prev));
+   }, 200);
 
-    const analyzeMedia = async () => {
-      try {
-        let response;
-        if (fileType === "video") {
-          response = await detectDeepfakeVideo(file);
-          // Convert deepfake_probability (assumed 0–1) to percentage
-          const confidence = Math.round(response.deepfake_probability * 100);
-          const isFake = confidence > 50; // adjust threshold as needed
-          const suspiciousAreas = isFake ? generateSuspiciousAreas() : [];
-          clearInterval(progressInterval);
-          setProgress(100);
-          setTimeout(() => {
-            navigate("/result", {
-              state: { isFake, fileType, preview, confidence, suspiciousAreas },
-            });
-          }, 1000);
-        } else if (fileType === "audio") {
-          response = await detectDeepfakeAudio(file);
-          const isFake = response.result.toLowerCase() === "fake";
-          const confidence = Math.round(response.probability * 100);
-          clearInterval(progressInterval);
-          setProgress(100);
-          setTimeout(() => {
-            navigate("/result", {
-              state: {
-                isFake,
-                fileType,
-                preview,
-                confidence,
-                suspiciousAreas: [],
-              },
-            });
-          }, 1000);
-        } else {
-          clearInterval(progressInterval);
-          setError("Image analysis is not supported by the backend.");
-        }
-      } catch (err) {
-        clearInterval(progressInterval);
-        setError("Analysis failed. Please try again.");
-        console.error(err);
-      }
-    };
+   const analyzeMedia = async () => {
+     try {
+       let response;
+       if (fileType === "video") {
+         response = await detectDeepfakeVideo(file);
+         // Convert deepfake_probability (assumed 0–1) to percentage
+         const confidence = Math.round(response.deepfake_probability * 100);
+         const isFake = confidence > 50; // adjust threshold as needed
+         const suspiciousAreas = isFake ? generateSuspiciousAreas() : [];
+         window.clearInterval(progressInterval);
+         setProgress(100);
+         setTimeout(() => {
+           navigate("/result", {
+             state: { isFake, fileType, preview, confidence, suspiciousAreas },
+           });
+         }, 1000);
+       } else if (fileType === "audio") {
+         response = await detectDeepfakeAudio(file);
+         const isFake = response.result.toLowerCase() === "fake";
+         const confidence = Math.round(response.probability * 100);
+         window.clearInterval(progressInterval);
+         setProgress(100);
+         setTimeout(() => {
+           navigate("/result", {
+             state: {
+               isFake,
+               fileType,
+               preview,
+               confidence,
+               suspiciousAreas: [],
+             },
+           });
+         }, 1000);
+       } else {
+         window.clearInterval(progressInterval);
+         setError("Image analysis is not supported by the backend.");
+       }
+     } catch (err) {
+       window.clearInterval(progressInterval);
+       setError("Analysis failed. Please try again.");
+       console.error(err);
+     }
+   };
 
-    analyzeMedia();
+   analyzeMedia();
 
-    return () => clearInterval(progressInterval);
-  }, [fileType, file, preview, navigate]);
+   return () => window.clearInterval(progressInterval);
+ }, [fileType, file, preview, navigate]);
 
   const generateSuspiciousAreas = () => {
     const areas = [];
