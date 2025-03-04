@@ -34,8 +34,8 @@ const AnalysisScreen: React.FC = () => {
        if (fileType === "video") {
          response = await detectDeepfakeVideo(file);
          // Convert deepfake_probability (assumed 0–1) to percentage
-         const confidence = Math.round(response.deepfake_probability * 100);
-         const isFake = confidence > 50; // adjust threshold as needed
+         const confidence = Math.round(response.probability * 100);
+         const isFake = (response.result==="Real")?true:false; // adjust threshold as needed
          const suspiciousAreas = isFake ? generateSuspiciousAreas() : [];
          window.clearInterval(progressInterval);
          setProgress(100);
