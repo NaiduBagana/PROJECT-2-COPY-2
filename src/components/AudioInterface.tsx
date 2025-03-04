@@ -200,12 +200,13 @@ const AudioInterface: React.FC = () => {
         clearInterval(interval);
         
         // Navigate to analysis screen
-        navigate('/analysis', { 
-          state: { 
-            fileType: 'audio',
+        navigate("/analysis", {
+          state: {
+            fileType: "audio",
             preview: audioUrl,
-            isAudio: true
-          } 
+            file: audioFile,
+            isAudio: true,
+          },
         });
       }
     }, 100);

@@ -60,27 +60,59 @@ const WebcamInterface: React.FC = () => {
     setRecordedChunks([]);
     setIsCapturing(false);
   };
-
-  const handleStartScan = () => {
-    setIsScanning(true);
-    
-    // Simulate scanning progress
-    let progress = 0;
-    const interval = setInterval(() => {
-      progress += 2;
-      setScanProgress(progress);
-      
-      if (progress >= 100) {
-        clearInterval(interval);
-        navigate('/analysis', { 
-          state: { 
-            fileType: capturedImage ? 'image' : 'video',
-            preview: capturedImage || URL.createObjectURL(new Blob(recordedChunks, { type: 'video/webm' }))
-          } 
-        });
-      }
-    }, 100);
+  const dataURLtoFile = (dataurl: string, filename: string): File => {
+    const arr = dataurl.split(",");
+    const mime = arr[0].match(/:(.*?);/)![1];
+    const bstr = atob(arr[1]);
+    let n = bstr.length;
+    const u8arr = new Uint8Array(n);
+    while (n--) {
+      u8arr[n] = bstr.charCodeAt(n);
+    }
+    return new File([u8arr], filename, { type: mime });
   };
+
+ const handleStartScan = () => {
+   setIsScanning(true);
+
+   // Simulate scanning progress
+   let progress = 0;
+   const interval = setInterval(() => {
+     progress += 2;
+     setScanProgress(progress);
+
+     if (progress >= 100) {
+       clearInterval(interval);
+
+       if (capturedImage) {
+         // Convert capturedImage (base64) to File
+         const file = dataURLtoFile(capturedImage, "captured-image.jpg");
+         navigate("/analysis", {
+           state: {
+             fileType: "image",
+             preview: capturedImage,
+             file, // Pass the file object
+           },
+         });
+       } else {
+         // For recorded video, create a File from recordedChunks
+         const blob = new Blob(recordedChunks, { type: "video/webm" });
+         const file = new File([blob], "recorded-video.webm", {
+           type: "video/webm",
+         });
+         const previewUrl = URL.createObjectURL(blob);
+         navigate("/analysis", {
+           state: {
+             fileType: "video",
+             preview: previewUrl,
+             file, // Pass the file object
+           },
+         });
+       }
+     }
+   }, 100);
+ };
+
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center p-4">
