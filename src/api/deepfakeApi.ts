@@ -169,7 +169,18 @@ import axios from "axios";
 
 const API_BASE_URL = "http://localhost:8000";
 
-export const detectDeepfakeVideo = async (file: File): Promise<any> => {
+export interface VideoDetectionResponse {
+  deepfake_probability: number;
+}
+
+export interface AudioDetectionResponse {
+  result: string;
+  probability: number;
+}
+
+export const detectDeepfakeVideo = async (
+  file: File
+): Promise<VideoDetectionResponse> => {
   try {
     const formData = new FormData();
     formData.append("file", file);
@@ -183,7 +194,6 @@ export const detectDeepfakeVideo = async (file: File): Promise<any> => {
         },
       }
     );
-
     return response.data;
   } catch (error) {
     console.error("Error detecting deepfake video:", error);
@@ -191,7 +201,9 @@ export const detectDeepfakeVideo = async (file: File): Promise<any> => {
   }
 };
 
-export const detectDeepfakeAudio = async (file: File): Promise<any> => {
+export const detectDeepfakeAudio = async (
+  file: File
+): Promise<AudioDetectionResponse> => {
   try {
     const formData = new FormData();
     formData.append("file", file);
@@ -205,7 +217,6 @@ export const detectDeepfakeAudio = async (file: File): Promise<any> => {
         },
       }
     );
-
     return response.data;
   } catch (error) {
     console.error("Error detecting deepfake audio:", error);
