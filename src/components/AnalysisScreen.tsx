@@ -36,7 +36,7 @@ const AnalysisScreen: React.FC = () => {
          // Convert deepfake_probability (assumed 0–1) to percentage
         //  const confidence = Math.round(response.probability * 100);
         //  const isFake = (response.result==="Real")?true:false; // adjust threshold as needed
-        const confidence = Math.round(response.probability * 100);
+        const confidence = Math.round(response.deepfake_probability * 100);
         // Define a threshold (for example, >50 means fake)
         const isFake = confidence > 50;
          const suspiciousAreas = isFake ? generateSuspiciousAreas() : [];

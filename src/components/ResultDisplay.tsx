@@ -28,7 +28,10 @@ const ResultDisplay: React.FC = () => {
   const [soundPlayed, setSoundPlayed] = useState(false);
   const [isMuted, setIsMuted] = useState(false);
   
-  const audioRef = useRef<HTMLAudioElement | null>(null);
+  // const audioRef = useRef<HTMLAudioElement | null>(null);
+  // const mediaRef = useRef<HTMLMediaElement | null>(null);
+  const mediaRef = useRef<HTMLVideoElement | HTMLAudioElement | null>(null);
+
   const alertSoundRef = useRef<HTMLAudioElement | null>(null);
   const successSoundRef = useRef<HTMLAudioElement | null>(null);
   
@@ -58,14 +61,18 @@ const ResultDisplay: React.FC = () => {
       successSoundRef.current.muted = !isMuted;
     }
     
-    if (audioRef.current) {
-      audioRef.current.muted = !isMuted;
+    if (mediaRef.current) {
+      mediaRef.current.muted = !isMuted;
     }
   };
   
   return (
     <div className="min-h-screen flex flex-col items-center justify-center p-4">
-      <div className={`${isFake ? 'cyber-panel-alt' : 'cyber-panel'} max-w-4xl w-full`}>
+      <div
+        className={`${
+          isFake ? "cyber-panel-alt" : "cyber-panel"
+        } max-w-4xl w-full`}
+      >
         <div className="text-center mb-8">
           {isFake ? (
             <div className="animate-glitch">
@@ -92,8 +99,8 @@ const ResultDisplay: React.FC = () => {
               </div>
             </div>
           )}
-          
-          <button 
+
+          <button
             onClick={toggleMute}
             className="absolute top-4 right-4 p-2 rounded-full bg-cyber-dark hover:bg-cyber-dark/70 transition-colors"
           >
@@ -104,28 +111,24 @@ const ResultDisplay: React.FC = () => {
             )}
           </button>
         </div>
-        
+
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
           <div className="relative">
             <div className={isFake ? "cracked-mirror" : "digital-mirror"}>
-              {fileType === 'image' ? (
+              {fileType === "image" ? (
                 <div className="relative">
-                  <img 
-                    src={preview} 
-                    alt="Result" 
-                    className="w-full"
-                  />
+                  <img src={preview} alt="Result" className="w-full" />
                   {isFake && showHeatmap && (
                     <HeatmapOverlay areas={suspiciousAreas} />
                   )}
                 </div>
-              ) : fileType === 'video' ? (
+              ) : fileType === "video" ? (
                 <div className="relative">
-                  <video 
-                    src={preview} 
+                  <video
+                    src={preview}
                     controls
                     className="w-full"
-                    ref={audioRef}
+                    ref={mediaRef as React.RefObject<HTMLVideoElement>}
                   />
                   {isFake && showHeatmap && (
                     <HeatmapOverlay areas={suspiciousAreas} />
@@ -133,76 +136,90 @@ const ResultDisplay: React.FC = () => {
                 </div>
               ) : (
                 <div className="w-full h-full min-h-[200px] bg-cyber-dark flex items-center justify-center p-4">
-                  <audio 
-                    src={preview} 
+                  <audio
+                    src={preview}
                     controls
                     className="w-full"
-                    ref={audioRef}
+                    ref={mediaRef}
                   />
                   <AudioWaveform isFake={isFake} />
                 </div>
               )}
-              
-              {isFake && fileType !== 'audio' && <div className="crack-overlay"></div>}
+
+              {isFake && fileType !== "audio" && (
+                <div className="crack-overlay"></div>
+              )}
             </div>
-            
-            {isFake && fileType !== 'audio' && (
+
+            {isFake && fileType !== "audio" && (
               <div className="mt-4 flex justify-between">
-                <button 
+                <button
                   onClick={() => setShowHeatmap(!showHeatmap)}
                   className="text-sm text-cyber-pink hover:text-white transition-colors flex items-center gap-1"
                 >
                   <Info className="w-4 h-4" />
-                  {showHeatmap ? 'Hide' : 'Show'} Suspicious Areas
+                  {showHeatmap ? "Hide" : "Show"} Suspicious Areas
                 </button>
-                
+
                 <div className="cyber-badge-alt text-xs">
                   Confidence: {confidence}%
                 </div>
               </div>
             )}
-            
-            {(fileType === 'audio' || !isFake) && (
+
+            {(fileType === "audio" || !isFake) && (
               <div className="mt-4 flex justify-end">
-                <div className={`${isFake ? 'cyber-badge-alt' : 'cyber-badge'} text-xs`}>
+                <div
+                  className={`${
+                    isFake ? "cyber-badge-alt" : "cyber-badge"
+                  } text-xs`}
+                >
                   Confidence: {confidence}%
                 </div>
               </div>
             )}
           </div>
-          
+
           <div className="flex flex-col">
-            <div className={`p-6 rounded-lg ${isFake ? 'bg-cyber-red/10 border border-cyber-red/30' : 'bg-cyber-green/10 border border-cyber-green/30'}`}>
-              <h2 className={`text-2xl font-bold mb-4 ${isFake ? 'text-cyber-red' : 'text-cyber-green'}`}>
+            <div
+              className={`p-6 rounded-lg ${
+                isFake
+                  ? "bg-cyber-red/10 border border-cyber-red/30"
+                  : "bg-cyber-green/10 border border-cyber-green/30"
+              }`}
+            >
+              <h2
+                className={`text-2xl font-bold mb-4 ${
+                  isFake ? "text-cyber-red" : "text-cyber-green"
+                }`}
+              >
                 Analysis Results
               </h2>
-              
+
               <div className="space-y-4">
                 <div className="flex items-center gap-3">
                   <div className="confidence-meter">
-                    <div 
+                    <div
                       className="confidence-meter-fill"
-                      style={{ 
+                      style={{
                         height: `${confidence}%`,
-                        backgroundColor: isFake ? '#ff0055' : '#00ff9f'
+                        backgroundColor: isFake ? "#ff0055" : "#00ff9f",
                       }}
                     ></div>
-                    <div className="confidence-meter-text">
-                      {confidence}%
-                    </div>
+                    <div className="confidence-meter-text">{confidence}%</div>
                   </div>
-                  
+
                   <div>
                     <p className="font-bold mb-1">Detection Confidence</p>
                     <p className="text-sm text-gray-400">
-                      {isFake 
-                        ? `Our AI is confident this ${fileType} has been manipulated` 
+                      {isFake
+                        ? `Our AI is confident this ${fileType} has been manipulated`
                         : `Our AI is confident this ${fileType} is authentic`}
                     </p>
                   </div>
                 </div>
-                
-                {isFake && fileType === 'audio' && (
+
+                {isFake && fileType === "audio" && (
                   <div>
                     <p className="font-bold mb-2">Detected Issues:</p>
                     <ul className="text-sm space-y-2">
@@ -221,8 +238,8 @@ const ResultDisplay: React.FC = () => {
                     </ul>
                   </div>
                 )}
-                
-                {isFake && fileType !== 'audio' && (
+
+                {isFake && fileType !== "audio" && (
                   <div>
                     <p className="font-bold mb-2">Detected Issues:</p>
                     <ul className="text-sm space-y-2">
@@ -241,8 +258,8 @@ const ResultDisplay: React.FC = () => {
                     </ul>
                   </div>
                 )}
-                
-                {!isFake && fileType === 'audio' && (
+
+                {!isFake && fileType === "audio" && (
                   <div>
                     <p className="font-bold mb-2">Verification Results:</p>
                     <ul className="text-sm space-y-2">
@@ -261,8 +278,8 @@ const ResultDisplay: React.FC = () => {
                     </ul>
                   </div>
                 )}
-                
-                {!isFake && fileType !== 'audio' && (
+
+                {!isFake && fileType !== "audio" && (
                   <div>
                     <p className="font-bold mb-2">Verification Results:</p>
                     <ul className="text-sm space-y-2">
@@ -282,16 +299,18 @@ const ResultDisplay: React.FC = () => {
                   </div>
                 )}
               </div>
-              
+
               <button
                 onClick={() => setShowExplanation(!showExplanation)}
-                className={`mt-6 text-sm ${isFake ? 'text-cyber-pink' : 'text-cyber-blue'} hover:underline flex items-center gap-1`}
+                className={`mt-6 text-sm ${
+                  isFake ? "text-cyber-pink" : "text-cyber-blue"
+                } hover:underline flex items-center gap-1`}
               >
                 <Info className="w-4 h-4" />
-                {showExplanation ? 'Hide' : 'Show'} Technical Explanation
+                {showExplanation ? "Hide" : "Show"} Technical Explanation
               </button>
-              
-              {showExplanation && fileType === 'audio' && (
+
+              {showExplanation && fileType === "audio" && (
                 <div className="mt-4 text-sm text-gray-300 p-4 bg-cyber-dark rounded-lg">
                   <p className="mb-2">
                     Our AI analyzes multiple aspects of the audio:
@@ -305,8 +324,8 @@ const ResultDisplay: React.FC = () => {
                   </ul>
                 </div>
               )}
-              
-              {showExplanation && fileType !== 'audio' && (
+
+              {showExplanation && fileType !== "audio" && (
                 <div className="mt-4 text-sm text-gray-300 p-4 bg-cyber-dark rounded-lg">
                   <p className="mb-2">
                     Our AI analyzes multiple aspects of the media:
@@ -321,17 +340,17 @@ const ResultDisplay: React.FC = () => {
                 </div>
               )}
             </div>
-            
+
             <div className="mt-auto pt-6 flex flex-wrap gap-4 justify-center">
               <div className={isFake ? "cyber-badge-alt" : "cyber-badge"}>
                 {isFake ? "Deepfake Detector" : "Authenticity Verified"}
               </div>
-              
+
               <button className="cyber-button flex items-center gap-2 text-sm">
                 <Share2 className="w-4 h-4" />
                 Share Result
               </button>
-              
+
               <button className="cyber-button-alt flex items-center gap-2 text-sm">
                 <Download className="w-4 h-4" />
                 Download Report
@@ -339,10 +358,10 @@ const ResultDisplay: React.FC = () => {
             </div>
           </div>
         </div>
-        
+
         <div className="mt-8 text-center">
-          <button 
-            onClick={() => navigate('/')}
+          <button
+            onClick={() => navigate("/")}
             className="text-gray-400 hover:text-cyber-blue transition-colors flex items-center gap-2 mx-auto"
           >
             <ArrowLeft className="w-4 h-4" />
@@ -350,16 +369,16 @@ const ResultDisplay: React.FC = () => {
           </button>
         </div>
       </div>
-      
+
       {/* Sound effects */}
-      <audio 
-        ref={alertSoundRef} 
-        src="https://assets.mixkit.co/active_storage/sfx/212/212-preview.mp3" 
+      <audio
+        ref={alertSoundRef}
+        src="https://assets.mixkit.co/active_storage/sfx/212/212-preview.mp3"
         preload="auto"
       />
-      <audio 
-        ref={successSoundRef} 
-        src="https://assets.mixkit.co/active_storage/sfx/956/956-preview.mp3" 
+      <audio
+        ref={successSoundRef}
+        src="https://assets.mixkit.co/active_storage/sfx/956/956-preview.mp3"
         preload="auto"
       />
     </div>
