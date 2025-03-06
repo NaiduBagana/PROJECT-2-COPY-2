@@ -33,21 +33,49 @@ const WebcamInterface: React.FC = () => {
     }
   }, [webcamRef]);
 
+  // const handleStartRecording = useCallback(() => {
+  //   setIsRecording(true);
+  //   setCapturedImage(null);
+    
+  //   if (webcamRef.current && webcamRef.current.stream) {
+  //     mediaRecorderRef.current = new MediaRecorder(webcamRef.current.stream, {
+  //       mimeType: "video/webm"
+  //     });
+      
+  //     mediaRecorderRef.current.addEventListener("dataavailable", ({ data }) => {
+  //       if (data.size > 0) {
+  //         setRecordedChunks((prev) => [...prev, data]);
+  //       }
+  //     });
+      
+  //     mediaRecorderRef.current.start();
+  //   }
+  // }, [webcamRef, setRecordedChunks]);
+
+  // const handleStopRecording = useCallback(() => {
+  //   if (mediaRecorderRef.current) {
+  //     mediaRecorderRef.current.stop();
+  //   }
+  //   setIsRecording(false);
+  //   setIsCapturing(true);
+  // }, [mediaRecorderRef, setIsRecording]);
   const handleStartRecording = useCallback(() => {
     setIsRecording(true);
     setCapturedImage(null);
-    
+    // Clear any previous recordings
+    setRecordedChunks([]);
+
     if (webcamRef.current && webcamRef.current.stream) {
       mediaRecorderRef.current = new MediaRecorder(webcamRef.current.stream, {
-        mimeType: "video/webm"
+        mimeType: "video/webm",
       });
-      
+
       mediaRecorderRef.current.addEventListener("dataavailable", ({ data }) => {
         if (data.size > 0) {
           setRecordedChunks((prev) => [...prev, data]);
         }
       });
-      
+
       mediaRecorderRef.current.start();
     }
   }, [webcamRef, setRecordedChunks]);
@@ -149,7 +177,7 @@ const handleStartScan = async () => {
 
       // For images, we'll use the video detection API
       result = await detectDeepfakeVideo(file);
-    } else {
+    } else if (recordedChunks.length > 0) {
       // Handle video analysis
       fileType = "video";
       const blob = new Blob(recordedChunks, { type: "video/webm" });
@@ -158,6 +186,8 @@ const handleStartScan = async () => {
 
       // For videos, we'll use the video detection API
       result = await detectDeepfakeVideo(file);
+    } else {
+      throw new Error("No media captured");
     }
 
     // Complete the progress
@@ -240,7 +270,7 @@ const handleStartScan = async () => {
             </>
           ) : (
             <div className="rounded-lg overflow-hidden border-2 border-cyber-blue">
-              {capturedImage ? (
+              {/* {capturedImage ? (
                 <img src={capturedImage} alt="Captured" className="w-full" />
               ) : (
                 <video
@@ -250,6 +280,21 @@ const handleStartScan = async () => {
                   controls
                   className="w-full"
                 />
+              )} */}
+              {capturedImage ? (
+                <img src={capturedImage} alt="Captured" className="w-full" />
+              ) : recordedChunks.length > 0 ? (
+                <video
+                  src={URL.createObjectURL(
+                    new Blob(recordedChunks, { type: "video/webm" })
+                  )}
+                  controls
+                  className="w-full"
+                />
+              ) : (
+                <div className="bg-gray-800 w-full h-64 flex items-center justify-center">
+                  <p className="text-gray-400">No media captured</p>
+                </div>
               )}
 
               {isScanning && (
