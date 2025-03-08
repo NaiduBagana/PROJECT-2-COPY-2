@@ -53,7 +53,7 @@ const AnalysisScreen: React.FC = () => {
          }, 1000);
        } else if (fileType === "audio") {
          response = await detectDeepfakeAudio(file);
-         const isFake = response.result.toLowerCase() === "fake";
+         const isFake = response.result.toLowerCase() === "aivoice";
          const confidence = Math.round(response.probability * 100);
          window.clearInterval(progressInterval);
          setProgress(100);

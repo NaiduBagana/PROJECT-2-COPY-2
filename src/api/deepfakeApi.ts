@@ -95,7 +95,7 @@ export const detectDeepfakeAudio = async (
     const formData = new FormData();
     formData.append("file", file);
     const response = await axios.post(
-      `${API_BASE_URL}/detect-deepfake-audio`,
+      `${API_BASE_URL}/detect-audio`,
       formData,
       {
         headers: { "Content-Type": "multipart/form-data" },
